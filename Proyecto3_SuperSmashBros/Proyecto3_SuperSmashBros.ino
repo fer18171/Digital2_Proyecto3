@@ -85,9 +85,16 @@ void setup() {
 //LCD_Sprite(int x, int y, int width, int height, unsigned char bitmap[],int columns, int index, char flip, char offset);
     
   //LCD_Bitmap(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned char bitmap[]);
-  LCD_Bitmap(0, 0, 320, 240, PantallaInicio);
-  
-  
+  //LCD_SpriteSD(0, 0, 320, 240, "INICIO.txt");
+
+  unsigned int pix = 40*40*2;
+  unsigned char dat[pix];
+  ExtraerDelSD("KONG.txt",dat);
+  LCD_Bitmap(100, 50, 40, 40, dat);
+
+  LCD_FondoSD("INIT.txt");
+ 
+  //LA PLANTA ES DE 32X48
   /*for(int x = 0; x <319; x++){
     LCD_Bitmap(x, 52, 16, 16, tile2);
     LCD_Bitmap(x, 68, 16, 16, tile);
@@ -96,17 +103,32 @@ void setup() {
     LCD_Bitmap(x, 223, 16, 16, tile);
     x += 15;
  }*/
-  
+ //ExtraerDelSD("F1_I.txt"); 
 }
 //***************************************************************************************************************************************
 // Loop Infinito
 //***************************************************************************************************************************************
 void loop() {
-  
-  LCD_Bitmap(0, 0, 320, 240, PantallaInicio);
+  int ancho = (35*6);
+  unsigned int pix=ancho*48*2;
+  unsigned char dat2[20300];
+  ExtraerDelSD("LINKC.txt",dat2);
+
+  ancho = (24*2);
+  pix=ancho*32*2;
+  unsigned char dat3[pix];
+  ExtraerDelSD("PLANTA.txt",dat3);
+  while(1){
+    for (int i=0;i<6;i++){
+  LCD_Sprite(150, 150, 35, 48, dat2, 6, i, 1, 0);
+  LCD_Sprite(50, 150, 24, 32, dat3, 2, i%2+1, 1, 0);
+  delay(200);
+    }
+  }
+  /*LCD_Bitmap(0, 0, 320, 240, PantallaInicio);
   delay(500);
   LCD_Bitmap(0, 0, 320, 240, PantallaInicio_S);
-  delay(500);
+  delay(500);*/
   /*for(int x = 0; x <320-32; x++){
     delay(15);
     int anim2 = (x/35)%2;
@@ -444,28 +466,76 @@ void LCD_Bitmap(unsigned int x, unsigned int y, unsigned int width, unsigned int
   digitalWrite(LCD_CS, HIGH);
 }
 
-void LCD_BitmapSD(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned char bitmap[]){  
+void LCD_FondoSD(char name[]){  
   LCD_CMD(0x02c); // write_memory_start
   digitalWrite(LCD_RS, HIGH);
   digitalWrite(LCD_CS, LOW); 
-  
-  unsigned int x2, y2;
-  x2 = x+width;
-  y2 = y+height;
-  SetWindows(x, y, x2-1, y2-1);
-  unsigned int k = 0;
-  unsigned int i, j;
-  unsigned char bitmap[];
-  for (int i = 0; i < width; i++) {
-    for (int j = 0; j < height; j++) {
-      LCD_DATA(bitmap[k]);
-      LCD_DATA(bitmap[k+1]);
-      //LCD_DATA(bitmap[k]);    
-      k = k + 2;
-     } 
+  SetWindows(0, 0, 319, 239);
+  myFile = SD.open(name);
+  char a;
+  char C[2];
+  int n;
+  if (myFile) { //Si se logro abrir de manera correcta
+    // read from the file until there's nothing else in it:
+    while (myFile.available()) { //Se va leyendo cada caracter del archivo hasta que ya se hayan leido todos
+      n=0;
+      while (1){
+      a=myFile.read();  
+      if ((a==',')|(myFile.available()==0)){
+        break;
+        }
+      else{
+        C[n]=a;
+        n++;
+        }
+      }               
+      uint8_t num = (uint8_t)strtol(C, NULL, 16);
+      LCD_DATA(num);
+    }
+    // close the file:
+    myFile.close(); //Se cierra el archivo
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening Hola.txt");
   }
   digitalWrite(LCD_CS, HIGH);
 }
+  
+void ExtraerDelSD(char name[], unsigned char data[]){
+  myFile = SD.open(name);
+  char a;
+  char C[4];
+  int n;
+  int m=0;
+  if (myFile) { //Si se logro abrir de manera correcta
+    // read from the file until there's nothing else in it:
+    while (myFile.available()) { //Se va leyendo cada caracter del archivo hasta que ya se hayan leido todos
+      n=0;
+      while (1){
+      a=myFile.read();  
+      if ((a==',')|(myFile.available()==0)){
+        break;
+        }
+      else{
+        if (a==' '){
+          }
+        else{
+        C[n]=a;
+        n++;
+        }
+        }
+      }                 
+      uint8_t num = (uint8_t)strtol(C, NULL, 16);
+      data[m]=num;
+      m++;
+    }
+    // close the file:
+    myFile.close(); //Se cierra el archivo
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening Hola.txt");
+  }
+  }
 //***************************************************************************************************************************************
 // Función para dibujar una imagen sprite - los parámetros columns = número de imagenes en el sprite, index = cual desplegar, flip = darle vuelta
 //***************************************************************************************************************************************
