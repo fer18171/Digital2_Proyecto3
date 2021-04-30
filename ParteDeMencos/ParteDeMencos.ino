@@ -96,11 +96,11 @@ unsigned char LinkParado[22*48*2*2];
 //**************** COSAS DE LA MUSICA ***************************
 int buzzerPin = 32;
 uint8_t nota=0;
-uint8_t cont=0;
+uint8_t cont=1;
 // notes in the melody: b3-AS3
 int melody[] = {NOTE_G4, NOTE_F4, NOTE_DS4, NOTE_D4, NOTE_AS3, 
                 NOTE_G3, NOTE_C4, NOTE_D4, NOTE_DS4, NOTE_F4,
-                NOTE_D4, NOTE_C5, NOTE_G4, NOTE_DS4,
+                NOTE_D4, SILENCIO, NOTE_C5, NOTE_G4, NOTE_DS4,
                 NOTE_D4, NOTE_C4, NOTE_C4, NOTE_D4, NOTE_DS4,
                 NOTE_C4, NOTE_AS3, NOTE_C4, NOTE_G3, NOTE_C5,
                 NOTE_G4, NOTE_DS4, NOTE_D4, NOTE_C4, NOTE_C4,
@@ -111,14 +111,46 @@ int melody[] = {NOTE_G4, NOTE_F4, NOTE_DS4, NOTE_D4, NOTE_AS3,
                 NOTE_D4, NOTE_DS4, NOTE_C4, NOTE_AS3, NOTE_C4, 
                 NOTE_G3, NOTE_C5, NOTE_G4, NOTE_DS4, NOTE_F4, 
                 NOTE_G4, NOTE_C4, NOTE_D4, NOTE_F4, NOTE_D4, 
-                NOTE_AS3};
+                NOTE_AS3,
+                NOTE_C4, NOTE_F3, NOTE_F3, NOTE_A3, NOTE_C4,
+                NOTE_DS4, NOTE_D4, NOTE_C4, NOTE_G3, NOTE_F3, 
+                NOTE_F3, NOTE_A3, NOTE_C4, NOTE_DS4, NOTE_F4, 
+                NOTE_G4, NOTE_A4, NOTE_G4, NOTE_F4, NOTE_DS4, 
+                NOTE_F4, NOTE_G4, NOTE_C4, NOTE_G4, NOTE_F4, 
+                NOTE_F4, NOTE_F4, NOTE_DS4, NOTE_D4, NOTE_DS4, 
+                NOTE_F4, NOTE_DS4, NOTE_F4, NOTE_G4, NOTE_DS4, 
+                NOTE_F3, NOTE_F3, NOTE_A3, NOTE_C4, NOTE_DS4, 
+                NOTE_D4, NOTE_C4, NOTE_G3,  NOTE_F4, NOTE_F4, 
+                NOTE_A3, NOTE_C4, NOTE_DS4, NOTE_F4, NOTE_G4, 
+                NOTE_A4, NOTE_G4, NOTE_F4, NOTE_A4, NOTE_AS4, 
+                NOTE_C5, NOTE_G4, NOTE_DS4, NOTE_C4, NOTE_D4, 
+                NOTE_D4, NOTE_D4, NOTE_F4, NOTE_D4, NOTE_AS3, 
+                NOTE_G3, NOTE_AS3 };
    
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
 int noteDurations[] = {
   4, 8, 8, 8, 8, 4, 8, 8, 
-  8, 8, 4, 2, 2, 4, 4, 2, 
+  8, 8, 4, 4, 2, 2, 4, 4, 2, 
   4, 4, 4, 4, 4, 4, 2, 2,
-  2, 4, 4, 4, 8, 8, 4, 4, 4, 4, 4, 4, 8, 16, 16, 16, 16, 16, 16, 2, 2, 4, 4, 2, 4, 4, 4, 4, 4, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4};
+  2, 4, 4, 4, 8, 8, 4, 4, 
+  4, 4, 4, 4, 8, 16, 16, 
+  16, 16, 16, 16, 2, 2, 4, 
+  4, 2, 4, 4, 4, 4, 4, 2, 
+  2, 2, 4, 4, 4, 4, 4, 4, 4, 4,
+  1,4,4,4,4,
+  4,4,4,4,4,
+  4,4,4,4,4,
+  2,4,8,4,8,
+  8,4,4,2,8,
+  16,8,8,4,8,
+  8,4,4,4,4,
+  4,4,4,4,4,
+  4,4,4,4,4,
+  4,4,4,4,2,
+  4,8,4,8,8,
+  4,4,4,4,8,
+  16,8,8,8,8, 
+  8,8,8};
 //********************************************************************
 
   
@@ -205,9 +237,9 @@ void loop() {
       delay(5);
       int anim = (y / 11) % 8;
       //  LCD_Sprite(x, 120, 103, 48, LinkEspada, 4, anim, 0, 0);
-      LCD_Sprite(46, 68, 40, 40, PersonajeMiniatura, 8, anim, 0, 0);
+      //LCD_Sprite(46, 68, 40, 40, PersonajeMiniatura, 8, anim, 0, 0);
     }
-    LCD_Sprite(46, 68, 40, 40, PersonajeMiniatura, 8, 0, 0, 0);
+    //LCD_Sprite(46, 68, 40, 40, PersonajeMiniatura, 8, 0, 0, 0);
     delay(2000);
     LCD_Bitmap(0, 0, 320, 240, Escenario1);
 
@@ -215,7 +247,7 @@ void loop() {
       struct control control1 = {digitalRead(PUSH1), digitalRead(PUSH2), digitalRead(PA_7), digitalRead(PF_1)};
 
 
-      LCD_Sprite(70, 180, 40, 40, PersonajeMiniatura, 8, 0, 0, 0);
+      //LCD_Sprite(70, 180, 40, 40, PersonajeMiniatura, 8, 0, 0, 0);
       
       if (control1.izquierda == LOW) {
 
@@ -768,21 +800,15 @@ void ExtraerDelSD(char name[], uint8_t* data){
   }
 
 void LCD_FondoSD(char name[]){  
-  Serial.println("C0");
   LCD_CMD(0x02c); // write_memory_start
-  Serial.println("C1");
   digitalWrite(LCD_RS, HIGH);
   digitalWrite(LCD_CS, LOW); 
-  Serial.println("C2");
   SetWindows(0, 0, 319, 239);
-  Serial.println("C3");
   myFile = SD.open(name);
-  Serial.println("C4");
   char a;
   char C[2];
   int n;
   if (myFile) { //Si se logro abrir de manera correcta
-    Serial.println("C5");
     // read from the file until there's nothing else in it:
     while (myFile.available()) { //Se va leyendo cada caracter del archivo hasta que ya se hayan leido todos
       n=0;
@@ -829,11 +855,15 @@ void Timer1AHandler(void){
     nota++;
     }
   else {
-  if (pow(2,4-cont)==noteDurations[nota-1]){
+  if (16==cont*noteDurations[nota-1]){
     noTone(buzzerPin);
-    cont=0;
+    cont=1;
     int noteDuration = 2000/noteDurations[nota];
-    tone(buzzerPin, melody[nota],noteDuration);
+    if (melody[nota]==1){
+      
+      }
+    else{
+    tone(buzzerPin, melody[nota],noteDuration);}
     nota++;
     }
   else {
@@ -842,7 +872,7 @@ void Timer1AHandler(void){
   if (nota==(sizeof(noteDurations)/4+1)){
     Serial.println("A0");
     nota=0;
-    cont=0;
+    cont=1;
     noTone(buzzerPin);
     }
   }

@@ -46,7 +46,7 @@
 #define NOTE_E4  330
 #define NOTE_F4  349
 #define NOTE_FS4 370
-#define NOTE_G4 392
+#define NOTE_G4  392
 #define NOTE_GS4 415
 #define NOTE_A4  440
 #define NOTE_AS4 466
@@ -91,4 +91,4 @@
 #define NOTE_CS8 4435
 #define NOTE_D8  4699
 #define NOTE_DS8 4978
-#define SILENCIO 1
+#define Space 1
